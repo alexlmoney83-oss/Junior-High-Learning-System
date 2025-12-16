@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - 上海初中学习系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            padding: 0 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 70px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2c3e50;
+            text-decoration: none;
+        }
+
+        .navbar-brand span {
+            margin-left: 8px;
+        }
+
+        .back-button {
+            background: #f8f9fa;
+            color: #6c757d;
+            padding: 8px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .back-button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .profile-header {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .avatar-section {
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        .avatar-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #27ae60;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-details h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .user-details p {
+            color: #6c757d;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .user-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .quick-stat {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-right: 15px;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .subject-progress {
+            margin-bottom: 20px;
+        }
+
+        .subject-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .subject-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .subject-progress-bar {
+            flex: 1;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.8s ease;
+        }
+
+        .chinese-progress { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+        .math-progress { background: linear-gradient(90deg, #3498db, #2980b9); }
+        .english-progress { background: linear-gradient(90deg, #27ae60, #229954); }
+
+        .progress-percentage {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-input:disabled {
+            background: #f1f3f4;
+            color: #6c757d;
+        }
+
+        .save-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .save-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .achievement-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .achievement-info h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .achievement-info p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .recent-activity {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .activity-time {
+            color: #6c757d;
+            font-size: 0.8rem;
+            margin-right: 15px;
+            white-space: nowrap;
+            margin-top: 2px;
+        }
+
+        .activity-content {
+            flex: 1;
+            font-size: 0.9rem;
+            color: #2c3e50;
+        }
+
+        .back-to-index {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            z-index: 101;
+        }
+
+        .back-to-index:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        @media (max-width: 968px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px 15px;
+            }
+            
+            .profile-header {
+                padding: 25px 20px;
+            }
+            
+            .content-card {
+                padding: 25px 20px;
+            }
+            
+            .user-details h1 {
+                font-size: 1.6rem;
+            }
+            
+            .user-avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-to-index">← 返回首页</a>
+    
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="home.html" class="navbar-brand">
+                🎓
+                <span>学习系统</span>
+            </a>
+            
+            <a href="home.html" class="back-button">← 返回首页</a>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="main-content">
+        <!-- 个人信息卡片 -->
+        <div class="profile-header">
+            <div class="profile-info">
+                <div class="avatar-section">
+                    <div class="user-avatar">王</div>
+                    <div class="avatar-upload" onclick="showMessage('头像上传功能开发中...')">📷</div>
+                </div>
+                
+                <div class="user-details">
+                    <h1>王小明</h1>
+                    <p>📧 xiaoming.wang@email.com</p>
+                    <p>📅 注册时间：2024年9月15日</p>
+                    <p>🕐 最后登录：刚刚</p>
+                    <span class="user-badge">🏆 优秀学员</span>
+                </div>
+            </div>
+            
+            <div class="quick-stats">
+                <div class="quick-stat">
+                    <div class="stat-number">125</div>
+                    <div class="stat-label">学习时长(小时)</div>
+                </div>
+                <div class="quick-stat">
+                    <div class="stat-number">28</div>
+                    <div class="stat-label">完成课程</div>
+                </div>
+                <div class="quick-stat">
+                    <div class="stat-number">342</div>
+                    <div class="stat-label">练习题数</div>
+                </div>
+                <div class="quick-stat">
+                    <div class="stat-number">85%</div>
+                    <div class="stat-label">平均正确率</div>
+                </div>
+                <div class="quick-stat">
+                    <div class="stat-number">15</div>
+                    <div class="stat-label">连续学习天数</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 内容网格 -->
+        <div class="content-grid">
+            <!-- 左栏 -->
+            <div>
+                <!-- 学习进度 -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(45deg, #3498db, #2980b9);">📊</div>
+                        <h3 class="card-title">学科学习进度</h3>
+                    </div>
+                    
+                    <div class="subject-progress">
+                        <div class="subject-item">
+                            <div class="subject-name">
+                                <span>📝</span>
+                                <span>语文</span>
+                            </div>
+                            <div class="subject-progress-bar">
+                                <div class="progress-fill chinese-progress" style="width: 68%"></div>
+                            </div>
+                            <div class="progress-percentage">68%</div>
+                        </div>
+                        
+                        <div class="subject-item">
+                            <div class="subject-name">
+                                <span>🔢</span>
+                                <span>数学</span>
+                            </div>
+                            <div class="subject-progress-bar">
+                                <div class="progress-fill math-progress" style="width: 75%"></div>
+                            </div>
+                            <div class="progress-percentage">75%</div>
+                        </div>
+                        
+                        <div class="subject-item">
+                            <div class="subject-name">
+                                <span>🌐</span>
+                                <span>英语</span>
+                            </div>
+                            <div class="subject-progress-bar">
+                                <div class="progress-fill english-progress" style="width: 52%"></div>
+                            </div>
+                            <div class="progress-percentage">52%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 学习统计图表 -->
+                <div class="content-card" style="margin-top: 30px;">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(45deg, #e67e22, #d35400);">📈</div>
+                        <h3 class="card-title">学习统计</h3>
+                    </div>
+                    
+                    <div class="chart-placeholder">
+                        📊 学习时长趋势图
+                        <br><small>（此处在实际项目中会集成图表库显示学习数据）</small>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                        <div style="text-align: center; padding: 15px; background: #e8f5e8; border-radius: 8px;">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #27ae60;">7</div>
+                            <div style="font-size: 0.85rem; color: #6c757d;">本周学习天数</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #e3f2fd; border-radius: 8px;">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #3498db;">156</div>
+                            <div style="font-size: 0.85rem; color: #6c757d;">本月练习题数</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 最近活动 -->
+                <div class="content-card" style="margin-top: 30px;">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(45deg, #1abc9c, #16a085);">📝</div>
+                        <h3 class="card-title">最近活动</h3>
+                    </div>
+                    
+                    <ul class="recent-activity">
+                        <li class="activity-item">
+                            <div class="activity-time">刚刚</div>
+                            <div class="activity-content">完成了语文《我的老师》练习题，得分86分</div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-time">2小时前</div>
+                            <div class="activity-content">学习了数学《一元一次方程》知识点总结</div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-time">昨天</div>
+                            <div class="activity-content">完成了英语Unit 3课程学习</div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-time">2天前</div>
+                            <div class="activity-content">参与了语文综合练习，表现优秀</div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-time">3天前</div>
+                            <div class="activity-content">学习了《散文诗二首》，完成度100%</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 学习成就 -->
+                <div class="content-card" style="margin-top: 30px;">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(45deg, #f39c12, #e67e22);">🏆</div>
+                        <h3 class="card-title">学习成就</h3>
+                    </div>
+                    
+                    <div class="achievement-item">
+                        <div class="achievement-icon" style="background: linear-gradient(45deg, #27ae60, #229954);">🎯</div>
+                        <div class="achievement-info">
+                            <h4>学习达人</h4>
+                            <p>连续学习15天，坚持就是胜利！</p>
+                        </div>
+                    </div>
+                    
+                    <div class="achievement-item">
+                        <div class="achievement-icon" style="background: linear-gradient(45deg, #3498db, #2980b9);">📚</div>
+                        <div class="achievement-info">
+                            <h4>课程精英</h4>
+                            <p>完成28门课程，知识积累丰富</p>
+                        </div>
+                    </div>
+                    
+                    <div class="achievement-item">
+                        <div class="achievement-icon" style="background: linear-gradient(45deg, #e74c3c, #c0392b);">⚡</div>
+                        <div class="achievement-info">
+                            <h4>练习高手</h4>
+                            <p>完成342道练习题，勤学苦练</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右栏 -->
+            <div>
+                <!-- 个人信息设置 -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(45deg, #9b59b6, #8e44ad);">⚙️</div>
+                        <h3 class="card-title">个人信息</h3>
+                    </div>
+                    
+                    <form onsubmit="saveProfile(event)">
+                        <div class="form-group">
+                            <label class="form-label">用户名</label>
+                            <input type="text" class="form-input" value="王小明" disabled>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">邮箱地址</label>
+                            <input type="email" class="form-input" value="xiaoming.wang@email.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">手机号码</label>
+                            <input type="tel" class="form-input" value="138****5678">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">学校</label>
+                            <input type="text" class="form-input" value="上海市第XX中学" placeholder="请输入您的学校">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">年级</label>
+                            <select class="form-input">
+                                <option value="grade1">初一</option>
+                                <option value="grade2" selected>初二</option>
+                                <option value="grade3">初三</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="save-button">保存信息</button>
+                    </form>
+                </div>
+
+                <!-- AI模型配置 -->
+                <div class="content-card" style="margin-top: 30px;">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(45deg, #667eea, #764ba2);">🤖</div>
+                        <h3 class="card-title">AI模型配置</h3>
+                    </div>
+                    
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2196f3;">
+                        <p style="margin: 0; color: #1976d2; font-size: 0.9rem;">
+                            <strong>💡 提示：</strong>配置您自己的AI模型API密钥，享受更快的响应速度和更高的使用额度。
+                        </p>
+                    </div>
+
+                    <form onsubmit="saveApiConfig(event)">
+                        <div class="form-group">
+                            <label class="form-label">
+                                AI模型选择
+                                <span style="color: #e74c3c; margin-left: 5px;">*</span>
+                            </label>
+                            <select class="form-input" id="ai-model" onchange="handleModelChange()">
+                                <option value="">请选择AI模型</option>
+                                <option value="deepseek-r1">DeepSeek-R1 (推荐)</option>
+                                <option value="gpt-5">OpenAI GPT-5</option>
+                            </select>
+                            <small style="color: #6c757d; font-size: 0.85rem; margin-top: 5px; display: block;">
+                                建议使用DeepSeek-R1，性价比更高
+                            </small>
+                        </div>
+                        
+                        <div class="form-group" id="api-key-group" style="display: none;">
+                            <label class="form-label">
+                                API Key
+                                <span style="color: #e74c3c; margin-left: 5px;">*</span>
+                            </label>
+                            <div style="position: relative;">
+                                <input 
+                                    type="password" 
+                                    class="form-input" 
+                                    id="api-key-input"
+                                    placeholder="请输入您的API Key"
+                                    style="padding-right: 50px;">
+                                <button 
+                                    type="button" 
+                                    onclick="toggleApiKeyVisibility()" 
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.2rem;"
+                                    id="toggle-visibility-btn">
+                                    👁️
+                                </button>
+                            </div>
+                            <small style="color: #6c757d; font-size: 0.85rem; margin-top: 5px; display: block;" id="api-key-hint">
+                                您的API Key将被加密存储，仅用于调用AI服务
+                            </small>
+                        </div>
+
+                        <div class="form-group" id="api-endpoint-group" style="display: none;">
+                            <label class="form-label">API端点 (可选)</label>
+                            <input 
+                                type="text" 
+                                class="form-input" 
+                                id="api-endpoint"
+                                placeholder="使用默认端点">
+                            <small style="color: #6c757d; font-size: 0.85rem; margin-top: 5px; display: block;">
+                                通常使用默认端点即可，除非您有自定义需求
+                            </small>
+                        </div>
+
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffc107;" id="model-info" style="display: none;">
+                            <p style="margin: 0; color: #856404; font-size: 0.9rem;" id="model-info-text">
+                            </p>
+                        </div>
+
+                        <div style="display: flex; gap: 10px;">
+                            <button type="submit" class="save-button" style="flex: 1;">保存配置</button>
+                            <button type="button" onclick="testApiKey()" class="save-button" style="flex: 1; background: linear-gradient(45deg, #27ae60, #229954);">
+                                测试连接
+                            </button>
+                        </div>
+                    </form>
+
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <h4 style="font-size: 0.95rem; font-weight: 600; color: #2c3e50; margin-bottom: 10px;">📚 如何获取API Key？</h4>
+                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; color: #6c757d;">
+                            <li style="margin-bottom: 8px;">
+                                <strong>DeepSeek：</strong>
+                                <a href="https://platform.deepseek.com" target="_blank" style="color: #667eea; text-decoration: none;">
+                                    platform.deepseek.com
+                                </a>
+                            </li>
+                            <li>
+                                <strong>OpenAI：</strong>
+                                <a href="https://platform.openai.com/api-keys" target="_blank" style="color: #667eea; text-decoration: none;">
+                                    platform.openai.com/api-keys
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function saveProfile(event) {
+            event.preventDefault();
+            showMessage('个人信息保存成功！', 'success');
+        }
+
+        function showMessage(text, type = 'info') {
+            const message = document.createElement('div');
+            const colors = {
+                success: '#27ae60',
+                error: '#e74c3c',
+                info: '#667eea'
+            };
+            
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%) translateY(-100px);
+                padding: 15px 25px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 1000;
+                transition: transform 0.3s ease;
+                background: ${colors[type] || colors.info};
+            `;
+            message.textContent = text;
+            
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.style.transform = 'translateX(-50%) translateY(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                message.style.transform = 'translateX(-50%) translateY(-100px)';
+                setTimeout(() => {
+                    document.body.removeChild(message);
+                }, 300);
+            }, 3000);
+        }
+
+        // AI模型配置相关函数
+        function handleModelChange() {
+            const modelSelect = document.getElementById('ai-model');
+            const selectedModel = modelSelect.value;
+            const apiKeyGroup = document.getElementById('api-key-group');
+            const apiEndpointGroup = document.getElementById('api-endpoint-group');
+            const modelInfo = document.getElementById('model-info');
+            const modelInfoText = document.getElementById('model-info-text');
+            
+            if (selectedModel) {
+                // 显示API Key输入框
+                apiKeyGroup.style.display = 'block';
+                apiEndpointGroup.style.display = 'block';
+                modelInfo.style.display = 'block';
+                
+                // 根据选择的模型显示不同的信息
+                const modelInfos = {
+                    'deepseek-r1': {
+                        text: '📌 DeepSeek-R1是性价比极高的推理模型，适合教育场景使用。定价：¥1/百万tokens (输入)，¥2/百万tokens (输出)',
+                        endpoint: 'https://api.deepseek.com'
+                    },
+                    'gpt-5': {
+                        text: '📌 GPT-5是OpenAI最新一代大模型，性能卓越，推理能力强大。定价：待官方公布',
+                        endpoint: 'https://api.openai.com/v1'
+                    }
+                };
+                
+                const info = modelInfos[selectedModel];
+                modelInfoText.textContent = info.text;
+                document.getElementById('api-endpoint').placeholder = info.endpoint;
+            } else {
+                apiKeyGroup.style.display = 'none';
+                apiEndpointGroup.style.display = 'none';
+                modelInfo.style.display = 'none';
+            }
+        }
+
+        function toggleApiKeyVisibility() {
+            const apiKeyInput = document.getElementById('api-key-input');
+            const toggleBtn = document.getElementById('toggle-visibility-btn');
+            
+            if (apiKeyInput.type === 'password') {
+                apiKeyInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else {
+                apiKeyInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+
+        function saveApiConfig(event) {
+            event.preventDefault();
+            
+            const model = document.getElementById('ai-model').value;
+            const apiKey = document.getElementById('api-key-input').value;
+            
+            if (!model) {
+                showMessage('请选择AI模型', 'error');
+                return;
+            }
+            
+            if (!apiKey) {
+                showMessage('请输入API Key', 'error');
+                return;
+            }
+            
+            // 模拟保存到后端
+            const config = {
+                model: model,
+                apiKey: apiKey.substring(0, 10) + '...' + apiKey.substring(apiKey.length - 4), // 只显示部分
+                endpoint: document.getElementById('api-endpoint').value || '默认端点',
+                timestamp: new Date().toISOString()
+            };
+            
+            // 实际项目中这里应该调用后端API保存
+            // fetch('/api/user/ai-config', { method: 'POST', body: JSON.stringify(config) })
+            
+            localStorage.setItem('ai-config', JSON.stringify(config));
+            showMessage('AI模型配置保存成功！', 'success');
+        }
+
+        function testApiKey() {
+            const model = document.getElementById('ai-model').value;
+            const apiKey = document.getElementById('api-key-input').value;
+            
+            if (!model || !apiKey) {
+                showMessage('请先选择模型并输入API Key', 'error');
+                return;
+            }
+            
+            showMessage('正在测试API连接...', 'info');
+            
+            // 模拟API测试
+            setTimeout(() => {
+                const success = Math.random() > 0.3; // 70%成功率（演示用）
+                
+                if (success) {
+                    showMessage('✅ API连接测试成功！模型可以正常使用', 'success');
+                } else {
+                    showMessage('❌ API连接失败，请检查API Key是否正确', 'error');
+                }
+            }, 2000);
+            
+            // 实际项目中应该调用后端API进行真实测试
+            // fetch('/api/test-ai-connection', { 
+            //     method: 'POST', 
+            //     body: JSON.stringify({ model, apiKey }) 
+            // })
+        }
+
+        // 页面加载时尝试恢复之前保存的配置
+        window.addEventListener('load', function() {
+            const savedConfig = localStorage.getItem('ai-config');
+            if (savedConfig) {
+                const config = JSON.parse(savedConfig);
+                // 可以在这里显示一个提示，表明已有配置
+                console.log('已加载之前保存的AI配置:', config);
+            }
+        });
+
+        // 页面加载时的动画效果
+        window.addEventListener('load', function() {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach((bar, index) => {
+                setTimeout(() => {
+                    bar.style.width = bar.style.width;
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>

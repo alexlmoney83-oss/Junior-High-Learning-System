@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上海初中学习系统 - 高保真原型设计</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .page-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .page-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #e74c3c, #f39c12);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .page-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+        }
+
+        .page-card:hover::before {
+            opacity: 1;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .page-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .page-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .page-description {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        .page-features {
+            list-style: none;
+        }
+
+        .page-features li {
+            color: #5a6c7d;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .page-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .view-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .view-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+        }
+
+        /* 特定页面的图标颜色 */
+        .login-icon { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+        .home-icon { background: linear-gradient(45deg, #3498db, #2980b9); }
+        .subject-icon { background: linear-gradient(45deg, #9b59b6, #8e44ad); }
+        .course-icon { background: linear-gradient(45deg, #f39c12, #e67e22); }
+        .detail-icon { background: linear-gradient(45deg, #1abc9c, #16a085); }
+        .knowledge-icon { background: linear-gradient(45deg, #e67e22, #d35400); }
+        .exercise-icon { background: linear-gradient(45deg, #27ae60, #229954); }
+        .result-icon { background: linear-gradient(45deg, #f1c40f, #f39c12); }
+        .profile-icon { background: linear-gradient(45deg, #95a5a6, #7f8c8d); }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .page-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-card {
+                padding: 20px;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 上海初中学习系统</h1>
+            <p>现代化在线学习平台 - 高保真原型设计展示</p>
+        </div>
+
+        <div class="page-grid">
+            <!-- 登录注册页面 -->
+            <div class="page-card" onclick="window.open('login.html', '_blank')">
+                <div class="page-header">
+                    <div class="page-icon login-icon">🔐</div>
+                    <h2 class="page-title">登录注册</h2>
+                </div>
+                <p class="page-description">用户认证系统，包含登录和注册功能</p>
+                <ul class="page-features">
+                    <li>现代化登录表单设计</li>
+                    <li>用户注册流程</li>
+                    <li>表单验证与反馈</li>
+                    <li>响应式布局适配</li>
+                </ul>
+                <a href="login.html" target="_blank" class="view-button">查看页面</a>
+            </div>
+
+            <!-- 系统首页 -->
+            <div class="page-card" onclick="window.open('home.html', '_blank')">
+                <div class="page-header">
+                    <div class="page-icon home-icon">🏠</div>
+                    <h2 class="page-title">系统首页</h2>
+                </div>
+                <p class="page-description">三大学科入口，展示学习进度和统计信息</p>
+                <ul class="page-features">
+                    <li>语文、数学、英语学科卡片</li>
+                    <li>学习进度可视化</li>
+                    <li>个人学习统计</li>
+                    <li>快速导航功能</li>
+                </ul>
+                <a href="home.html" target="_blank" class="view-button">查看页面</a>
+            </div>
+
+            <!-- 学科页面 -->
+            <div class="page-card" onclick="window.open('subject.html', '_blank')">
+                <div class="page-header">
+                    <div class="page-icon subject-icon">📚</div>
+                    <h2 class="page-title">学科年级选择</h2>
+                </div>
+                <p class="page-description">选择具体年级（初一/初二/初三）和综合练习</p>
+                <ul class="page-features">
+                    <li>三个年级选择界面</li>
+                    <li>综合练习入口</li>
+                    <li>学习进度展示</li>
+                    <li>美观的卡片布局</li>
+                </ul>
+                <a href="subject.html" target="_blank" class="view-button">查看页面</a>
+            </div>
+
+            <!-- 课程列表页 -->
+            <div class="page-card" onclick="window.open('course-list.html', '_blank')">
+                <div class="page-header">
+                    <div class="page-icon course-icon">📖</div>
+                    <h2 class="page-title">课程列表</h2>
+                </div>
+                <p class="page-description">展示15门课程，包含学习状态和进度信息</p>
+                <ul class="page-features">
+                    <li>15课完整课程列表</li>
+                    <li>学习状态标识</li>
+                    <li>进度条展示</li>
+                    <li>面包屑导航</li>
+                </ul>
+                <a href="course-list.html" target="_blank" class="view-button">查看页面</a>
+            </div>
+
+            <!-- 课程详情页 -->
+            <div class="page-card" onclick="window.open('course-detail.html', '_blank')">
+                <div class="page-header">
+                    <div class="page-icon detail-icon">📋</div>
+                    <h2 class="page-title">课程详情</h2>
+                </div>
+                <p class="page-description">知识点总结和练习题两大功能入口</p>
+                <ul class="page-features">
+                    <li>课程基本信息展示</li>
+                    <li>知识点总结入口</li>
+                    <li>练习题生成入口</li>
+                    <li>学习记录追踪</li>
+                </ul>
+                <a href="course-detail.html" target="_blank" class="view-button">查看页面</a>
+            </div>
+
+            <!-- 知识点总结页 -->
+            <div class="page-card" onclick="window.open('knowledge-summary.html', '_blank')">
+                <div class="page-header">
+                    <div class="page-icon knowledge-icon">🧠</div>
+                    <h2 class="page-title">知识点总结</h2>
+                </div>
+                <p class="page-description">AI生成的课程知识点总结内容展示</p>
+                <ul class="page-features">
+                    <li>AI生成知识点内容</li>
+                    <li>结构化内容展示</li>
+                    <li>重点难点标注</li>
+                    <li>重新生成功能</li>
+                </ul>
+                <a href="knowledge-summary.html" target="_blank" class="view-button">查看页面</a>
+            </div>
+
+            <!-- 练习题页面 -->
+            <div class="page-card" onclick="window.open('exercise.html', '_blank')">
+                <div class="page-header">
+                    <div class="page-icon exercise-icon">✍️</div>
+                    <h2 class="page-title">练习题界面</h2>
+                </div>
+                <p class="page-description">25道题的交互式练习系统</p>
+                <ul class="page-features">
+                    <li>25道练习题展示</li>
+                    <li>题目导航系统</li>
+                    <li>答题进度追踪</li>
+                    <li>实时保存功能</li>
+                </ul>
+                <a href="exercise.html" target="_blank" class="view-button">查看页面</a>
+            </div>
+
+            <!-- 练习结果页 -->
+            <div class="page-card" onclick="window.open('exercise-result.html', '_blank')">
+                <div class="page-header">
+                    <div class="page-icon result-icon">📊</div>
+                    <h2 class="page-title">练习结果</h2>
+                </div>
+                <p class="page-description">AI批改结果和详细分析报告</p>
+                <ul class="page-features">
+                    <li>总分与详细评分</li>
+                    <li>错误分析报告</li>
+                    <li>学习建议推荐</li>
+                    <li>知识点掌握分析</li>
+                </ul>
+                <a href="exercise-result.html" target="_blank" class="view-button">查看页面</a>
+            </div>
+
+            <!-- 个人中心页 -->
+            <div class="page-card" onclick="window.open('profile.html', '_blank')">
+                <div class="page-header">
+                    <div class="page-icon profile-icon">👤</div>
+                    <h2 class="page-title">个人中心</h2>
+                </div>
+                <p class="page-description">用户信息管理和学习数据统计</p>
+                <ul class="page-features">
+                    <li>个人信息管理</li>
+                    <li>学习数据统计</li>
+                    <li>成绩分析图表</li>
+                    <li>账号设置功能</li>
+                </ul>
+                <a href="profile.html" target="_blank" class="view-button">查看页面</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 上海初中学习系统 | 高保真原型设计 v1.0</p>
+        </div>
+    </div>
+
+    <script>
+        // 添加页面交互效果
+        document.querySelectorAll('.page-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>
