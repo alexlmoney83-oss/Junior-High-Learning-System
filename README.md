@@ -245,6 +245,14 @@ streamlit run app.py
 - Admin后台**不支持**直接上传PDF自动提取
 - 需要先运行提取脚本，再导入数据库
 
+**⚠️ 本项目的PDF提取限制**：
+- 提取脚本**只能提取文字型PDF**的文本内容
+- **无法提取图片中的文字**（如扫描版PDF，全是图片的PDF）
+- 如果PDF是图片格式，需要：
+  1. 使用OCR工具（如Adobe Acrobat、ABBYY FineReader）转换为文字PDF
+  2. 或使用多模态AI模型（如Qwen3-VL-8B，olmOCR-2-7B）提取图片中的文字
+  3. 或手动复制粘贴文字内容到Admin后台
+
 **方式1：从PDF提取课程内容（推荐）**
 
 1. 确保PDF课本文件在 `课本/` 目录下
@@ -265,13 +273,6 @@ streamlit run app.py
    - 提取文本内容
    - 更新数据库中的课程内容
 
-**⚠️ 本项目的PDF提取限制**：
-- 提取脚本**只能提取文字型PDF**的文本内容
-- **无法提取图片中的文字**（如扫描版PDF）
-- 如果PDF是图片格式，需要：
-  1. 使用OCR工具（如Adobe Acrobat、ABBYY FineReader）转换为文字PDF
-  2. 或使用多模态AI模型（如Qwen3-VL-8B，olmOCR-2-7B）提取图片中的文字
-  3. 或手动复制粘贴文字内容到Admin后台
 
 **方式2：Admin后台手动添加**
 
