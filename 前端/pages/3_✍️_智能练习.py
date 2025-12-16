@@ -77,7 +77,7 @@ elif st.session_state.current_course_id != course_id:
 # 检查用户是否配置了AI API Key
 has_api_key = st.session_state.get('api_key') is not None
 api_key = st.session_state.get('api_key')
-api_model = st.session_state.get('api_model', 'deepseek-r1')
+api_model = st.session_state.get('api_model', 'deepseek-chat')  # 修正默认模型名称
 
 # 初始化API客户端
 api_client = get_api_client()

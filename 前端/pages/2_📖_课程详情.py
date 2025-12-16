@@ -270,7 +270,7 @@ with col1:
             # 生成知识点总结
             with st.spinner("🤖 AI正在生成知识点总结..."):
                 api_key = st.session_state.get('api_key')
-                model = st.session_state.get('api_model', 'deepseek-r1')
+                model = st.session_state.get('api_model', 'deepseek-chat')  # 修正默认模型名称
                 response = api_client.generate_knowledge_summary(course_id, api_key, model)
                 
                 if response.get('code') != 200:

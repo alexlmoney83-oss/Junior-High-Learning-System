@@ -127,6 +127,16 @@ def generate_knowledge_summary(request, course_id):
         return APIResponse.success(serializer.data, message="使用已有的知识点总结")
     
     try:
+        # 截取课本内容（避免太长导致超时）
+        # 如果内容超过5000字，只取前5000字
+        max_content_length = 5000
+        original_length = len(course.content)
+        course_content = course.content[:max_content_length] if original_length > max_content_length else course.content
+        
+        if original_length > max_content_length:
+            course_content += f"\n\n...(原内容{original_length}字，已截取前{max_content_length}字)"
+            print(f"⚠️ 课程内容过长({original_length}字)，已截取前{max_content_length}字")
+        
         # 使用PromptManager的便捷方法：获取并渲染Prompt模板
         final_prompt = PromptManager.get_and_render(
             template_type='knowledge_summary',
@@ -134,7 +144,7 @@ def generate_knowledge_summary(request, course_id):
             course_title=course.title,
             grade=course.get_grade_display(),
             keywords=course.keywords,
-            course_content=course.content  # 传入完整的课本内容
+            course_content=course_content  # 传入截取后的课本内容
         )
         
         # 根据模型选择AI客户端

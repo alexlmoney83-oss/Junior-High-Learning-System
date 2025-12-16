@@ -232,10 +232,16 @@ class APIClient:
         }
         
         try:
-            response = requests.post(url, json=data, headers=self._get_headers(), timeout=60)
+            response = requests.post(url, json=data, headers=self._get_headers(), timeout=180)  # 3分钟超时
             response.raise_for_status()
             return response.json()
         
+        except requests.exceptions.Timeout as e:
+            return {
+                'code': 500,
+                'message': 'AI生成超时（超过3分钟），请稍后重试或选择更快的模型',
+                'data': None
+            }
         except requests.exceptions.RequestException as e:
             return {
                 'code': 500,
