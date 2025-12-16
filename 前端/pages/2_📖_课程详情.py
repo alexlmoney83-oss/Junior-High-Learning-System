@@ -52,27 +52,58 @@ with col3:
 st.markdown("---")
 
 # 获取课程ID和学科
-course_id = st.session_state.get('selected_course', 1)
+course_id = st.session_state.get('selected_course')
 selected_subject = st.session_state.get('selected_subject', 'chinese')
+
+# 如果没有选择课程，返回课程列表
+if not course_id:
+    st.warning("⚠️ 请先从课程中心选择一门课程")
+    if st.button("📚 前往课程中心"):
+        st.switch_page("pages/1_📚_课程中心.py")
+    st.stop()
 
 # 初始化API客户端
 api_client = get_api_client()
 
 # 从后端API获取课程详情
 with st.spinner("正在加载课程详情..."):
-    course_detail, error = api_client.get_course_detail(course_id)
+    response = api_client.get_course_detail(course_id)
 
-if error or not course_detail:
-    st.error(f"❌ 加载课程详情失败：{error if error else '课程不存在'}")
+# 解析响应
+if response.get('code') != 200:
+    st.error(f"❌ 加载课程详情失败：{response.get('message', '未知错误')}")
     st.info("💡 请确保Django后端正在运行，或返回课程列表重新选择")
     if st.button("返回课程列表"):
         st.switch_page("pages/1_📚_课程中心.py")
     st.stop()
 
+course_detail = response.get('data')
+if not course_detail:
+    st.error("❌ 课程不存在")
+    if st.button("返回课程列表"):
+        st.switch_page("pages/1_📚_课程中心.py")
+    st.stop()
+
+# 自动更新学习进度为"学习中"（仅在首次访问时）
+if f'course_{course_id}_visited' not in st.session_state:
+    # 标记为已访问
+    st.session_state[f'course_{course_id}_visited'] = True
+    
+    # 更新学习进度（不阻塞页面加载）
+    try:
+        # 注意：这里需要用户登录才能更新，暂时忽略错误
+        progress_response = api_client.update_study_progress(
+            course_id=course_id,
+            status='in_progress'
+        )
+        # 静默处理，不显示错误
+    except:
+        pass
+
 # 转换API数据为前端格式
 mock_course = {
-    'id': course_detail['id'],
-    'title': course_detail['title'],
+    'id': course_detail.get('id'),
+    'title': course_detail.get('title'),
     'subject': course_detail.get('subject', {}).get('code', 'math'),
     'grade': course_detail.get('grade', 'grade1'),
     'difficulty': course_detail.get('difficulty', 'easy'),
@@ -240,13 +271,15 @@ with col1:
             with st.spinner("🤖 AI正在生成知识点总结..."):
                 api_key = st.session_state.get('api_key')
                 model = st.session_state.get('api_model', 'deepseek-r1')
-                summary, error = api_client.generate_knowledge_summary(course_id, api_key, model)
+                response = api_client.generate_knowledge_summary(course_id, api_key, model)
                 
-                if error:
-                    st.error(f"❌ 生成失败：{error}")
+                if response.get('code') != 200:
+                    st.error(f"❌ 生成失败：{response.get('message', '未知错误')}")
                 else:
+                    summary_data = response.get('data')
                     st.success("✅ 知识点总结生成成功！")
-                    st.markdown(summary.get('content', ''))
+                    if summary_data:
+                        st.markdown(summary_data.get('content', ''))
 
 with col2:
     if st.button("✍️ 开始练习", use_container_width=True, type="primary"):

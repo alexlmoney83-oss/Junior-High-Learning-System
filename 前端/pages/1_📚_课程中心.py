@@ -91,27 +91,41 @@ api_client = get_api_client()
 
 # 从后端API获取课程数据
 with st.spinner("正在加载课程数据..."):
-    courses_data, error = api_client.get_courses(subject_code, grade)
+    response = api_client.get_courses(subject_code, grade)
 
 # 开发调试模式（显示API返回数据）
-if st.session_state.get('debug_mode', False):
-    with st.expander("🐛 调试信息"):
-        st.write("**API返回数据类型:**", type(courses_data))
-        st.write("**API返回数据:**", courses_data)
-        st.write("**错误信息:**", error)
+with st.expander("🐛 调试信息（点击查看）"):
+    st.write("**API基础URL:**", api_client.base_url)
+    st.write("**请求参数:**", {"subject": subject_code, "grade": grade})
+    st.write("**API返回数据类型:**", type(response))
+    st.write("**API返回数据:**", response)
+    
+    # 测试连接按钮
+    if st.button("🔧 测试后端连接"):
+        import requests
+        try:
+            test_response = requests.get(f"{api_client.base_url}/courses/subjects/", timeout=5)
+            st.success(f"✅ 后端连接正常！状态码: {test_response.status_code}")
+            st.json(test_response.json())
+        except Exception as e:
+            st.error(f"❌ 后端连接失败: {str(e)}")
 
-if error:
-    st.error(f"❌ 加载课程失败：{error}")
+# 解析响应
+if response.get('code') != 200:
+    st.error(f"❌ 加载课程失败：{response.get('message', '未知错误')}")
     st.info("💡 请确保Django后端正在运行（http://localhost:8000）")
     courses_data = []
-
-# 处理API返回的数据格式
-if courses_data and isinstance(courses_data, str):
-    # 如果返回的是字符串（可能是错误消息），转为空列表
-    st.warning(f"⚠️ API返回格式异常：{courses_data}")
-    courses_data = []
-elif not courses_data or not isinstance(courses_data, list):
-    courses_data = []
+else:
+    # 正确解析数据
+    data = response.get('data', [])
+    if isinstance(data, dict):
+        # 如果是分页数据，提取results
+        courses_data = data.get('results', [])
+    elif isinstance(data, list):
+        # 如果直接是列表
+        courses_data = data
+    else:
+        courses_data = []
 
 # 如果API返回数据为空，显示"数据整理中"提示
 if not courses_data:
@@ -283,14 +297,15 @@ for course in mock_courses:
         'not_started': '⚪',
         'in_progress': '🔵',
         'completed': '✅'
-    }[course['status']]
+    }.get(course.get('status', 'not_started'), '⚪')
     
     # 难度标签
-    difficulty_label = {
+    difficulty_map = {
         'easy': '🟢 基础',
         'medium': '🟡 进阶',
         'hard': '🔴 提高'
-    }[course['difficulty']]
+    }
+    difficulty_label = difficulty_map.get(course.get('difficulty', 'easy'), '🟢 基础')
     
     # 课程卡片
     with st.container():

@@ -152,14 +152,38 @@ class APIClient:
             params['grade'] = grade
         
         try:
-            response = requests.get(url, params=params, headers=self._get_headers())
+            response = requests.get(url, params=params, headers=self._get_headers(), timeout=10)
             response.raise_for_status()
             return response.json()
         
+        except requests.exceptions.ConnectionError as e:
+            return {
+                'code': 500,
+                'message': f'无法连接到后端服务器 ({self.base_url})，请确保Django后端正在运行',
+                'data': []
+            }
+        except requests.exceptions.Timeout as e:
+            return {
+                'code': 500,
+                'message': f'请求超时，后端响应过慢',
+                'data': []
+            }
+        except requests.exceptions.HTTPError as e:
+            return {
+                'code': response.status_code,
+                'message': f'HTTP错误 {response.status_code}: {str(e)}',
+                'data': []
+            }
         except requests.exceptions.RequestException as e:
             return {
                 'code': 500,
                 'message': f'获取课程列表失败: {str(e)}',
+                'data': []
+            }
+        except Exception as e:
+            return {
+                'code': 500,
+                'message': f'未知错误: {str(e)}',
                 'data': []
             }
     
@@ -187,20 +211,28 @@ class APIClient:
                 'data': None
             }
     
-    def generate_knowledge_summary(self, course_id: int) -> Dict:
+    def generate_knowledge_summary(self, course_id: int, api_key: str, model: str = 'deepseek-chat', regenerate: bool = False) -> Dict:
         """
         生成知识点总结
         
         Args:
             course_id: 课程ID
+            api_key: AI API Key
+            model: AI模型名称
+            regenerate: 是否重新生成
         
         Returns:
             知识点总结数据
         """
         url = f"{self.base_url}/courses/courses/{course_id}/generate-summary/"
+        data = {
+            'api_key': api_key,
+            'model': model,
+            'regenerate': regenerate
+        }
         
         try:
-            response = requests.post(url, headers=self._get_headers())
+            response = requests.post(url, json=data, headers=self._get_headers(), timeout=60)
             response.raise_for_status()
             return response.json()
         
@@ -211,13 +243,16 @@ class APIClient:
                 'data': None
             }
     
-    def generate_exercises(self, course_id: int, count: int = 25) -> Dict:
+    def generate_exercises(self, course_id: int, count: int, api_key: str, model: str = 'deepseek-chat', difficulty: str = 'basic') -> Dict:
         """
         生成练习题
         
         Args:
             course_id: 课程ID
             count: 题目数量
+            api_key: AI API Key
+            model: AI模型名称
+            difficulty: 难度级别
         
         Returns:
             练习题数据
@@ -225,11 +260,14 @@ class APIClient:
         url = f"{self.base_url}/exercises/generate/"
         data = {
             "course_id": course_id,
-            "count": count
+            "question_count": count,
+            "api_key": api_key,
+            "model": model,
+            "difficulty": difficulty
         }
         
         try:
-            response = requests.post(url, json=data, headers=self._get_headers())
+            response = requests.post(url, json=data, headers=self._get_headers(), timeout=60)
             response.raise_for_status()
             return response.json()
         
@@ -266,6 +304,100 @@ class APIClient:
             return {
                 'code': 500,
                 'message': f'提交答案失败: {str(e)}',
+                'data': None
+            }
+    
+    def get_study_progress(self, subject_id: int = None, grade: str = None) -> Dict:
+        """
+        获取学习进度
+        
+        Args:
+            subject_id: 学科ID（可选）
+            grade: 年级（可选）
+        
+        Returns:
+            学习进度数据
+        """
+        url = f"{self.base_url}/courses/study-progress/"
+        
+        params = {}
+        if subject_id:
+            params['subject_id'] = subject_id
+        if grade:
+            params['grade'] = grade
+        
+        try:
+            response = requests.get(url, params=params, headers=self._get_headers(), timeout=10)
+            response.raise_for_status()
+            return response.json()
+        
+        except requests.exceptions.RequestException as e:
+            return {
+                'code': 500,
+                'message': f'获取学习进度失败: {str(e)}',
+                'data': None
+            }
+    
+    def get_exercise_statistics(self, subject_id: int = None) -> Dict:
+        """
+        获取答题统计
+        
+        Args:
+            subject_id: 学科ID（可选）
+        
+        Returns:
+            答题统计数据
+        """
+        url = f"{self.base_url}/exercises/statistics/"
+        
+        params = {}
+        if subject_id:
+            params['subject_id'] = subject_id
+        
+        try:
+            response = requests.get(url, params=params, headers=self._get_headers(), timeout=10)
+            response.raise_for_status()
+            return response.json()
+        
+        except requests.exceptions.RequestException as e:
+            return {
+                'code': 500,
+                'message': f'获取答题统计失败: {str(e)}',
+                'data': None
+            }
+    
+    def update_study_progress(self, course_id: int, status: str = None, progress: int = None, study_time: int = None) -> Dict:
+        """
+        更新学习进度
+        
+        Args:
+            course_id: 课程ID
+            status: 学习状态（not_started/in_progress/completed）
+            progress: 学习进度（0-100）
+            study_time: 学习时长（秒）
+        
+        Returns:
+            更新结果
+        """
+        url = f"{self.base_url}/courses/study-progress/{course_id}/"
+        
+        data = {}
+        if status:
+            data['status'] = status
+        if progress is not None:
+            data['progress'] = progress
+        if study_time is not None:
+            data['study_time'] = study_time
+        
+        try:
+            response = requests.put(url, json=data, headers=self._get_headers(), timeout=10)
+            response.raise_for_status()
+            return response.json()
+        
+        except requests.exceptions.RequestException as e:
+            return {
+                'code': 500,
+                'message': f'更新学习进度失败: {str(e)}',
                 'data': None
             }
 

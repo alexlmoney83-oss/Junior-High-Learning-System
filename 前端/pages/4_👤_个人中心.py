@@ -258,17 +258,28 @@ with tab3:
     
     with st.spinner("加载学习统计..."):
         # 获取学习进度数据
-        progress_data, progress_error = api_client.get_study_progress()
+        progress_response = api_client.get_study_progress()
         # 获取答题统计数据
-        stats_data, stats_error = api_client.get_exercise_statistics()
+        stats_response = api_client.get_exercise_statistics()
     
-    if progress_error or stats_error:
-        st.warning("⚠️ 暂时无法加载统计数据，请稍后重试")
-        if progress_error:
-            st.caption(f"学习进度错误：{progress_error}")
-        if stats_error:
-            st.caption(f"答题统计错误：{stats_error}")
+    # 解析响应
+    progress_data = None
+    stats_data = None
+    has_error = False
+    
+    if progress_response.get('code') != 200:
+        st.warning(f"⚠️ 学习进度加载失败：{progress_response.get('message', '未知错误')}")
+        has_error = True
     else:
+        progress_data = progress_response.get('data')
+    
+    if stats_response.get('code') != 200:
+        st.warning(f"⚠️ 答题统计加载失败：{stats_response.get('message', '未知错误')}")
+        has_error = True
+    else:
+        stats_data = stats_response.get('data')
+    
+    if not has_error:
         # 显示本周学习数据
         st.markdown("#### 📈 学习数据概览")
         

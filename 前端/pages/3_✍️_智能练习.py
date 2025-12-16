@@ -54,8 +54,15 @@ st.markdown("---")
 
 # 获取选择的学科和课程
 selected_subject = st.session_state.get('selected_subject', 'chinese')
-course_id = st.session_state.get('selected_course', 1)
+course_id = st.session_state.get('selected_course')
 has_content = st.session_state.get('selected_course_has_content', False)
+
+# 如果没有选择课程，返回课程列表
+if not course_id:
+    st.warning("⚠️ 请先从课程中心选择一门课程")
+    if st.button("📚 前往课程中心"):
+        st.switch_page("pages/1_📚_课程中心.py")
+    st.stop()
 
 # 检查课程是否切换了，如果切换则清空旧的练习题
 if 'current_course_id' not in st.session_state:
@@ -203,10 +210,10 @@ if 'current_exercises' not in st.session_state or not st.session_state.current_e
             st.warning("⚠️ 该课程暂无课本内容，AI将根据课程标题和大纲生成题目")
         
         with st.spinner(f"🤖 AI正在生成 {question_count} 道题目..."):
-            result, error = api_client.generate_exercises(course_id, question_count, api_key, api_model)
+            response = api_client.generate_exercises(course_id, question_count, api_key, api_model)
             
-            if error:
-                st.error(f"❌ 生成失败：{error}")
+            if response.get('code') != 200:
+                st.error(f"❌ 生成失败：{response.get('message', '未知错误')}")
                 st.info("请检查：\n1. API Key是否正确\n2. 网络连接是否正常\n3. Django后端是否运行")
                 
                 # 提供备用Mock数据
@@ -216,8 +223,9 @@ if 'current_exercises' not in st.session_state or not st.session_state.current_e
                     st.session_state.user_answers = {}
                     st.rerun()
             else:
+                result = response.get('data', {})
                 # 提取题目列表（API返回格式：{course_id, generated_count, questions: [...]}）
-                exercises = result.get('questions', []) if isinstance(result, dict) else result
+                exercises = result.get('questions', []) if isinstance(result, dict) else []
                 
                 # 转换API返回的题目格式
                 formatted_exercises = []
@@ -394,6 +402,16 @@ if current_index < total_questions:
                         correct_count += 1
                 
                 score = (correct_count / total_questions) * 100
+                
+                # 更新学习进度（完成练习，进度+10%）
+                try:
+                    api_client.update_study_progress(
+                        course_id=course_id,
+                        status='in_progress',
+                        progress=min(100, 10)  # 每次完成练习增加10%进度
+                    )
+                except:
+                    pass  # 静默处理错误
                 
                 st.balloons()
                 st.success(f"🎉 提交成功！你的得分：{score:.1f}分（{correct_count}/{total_questions}题正确）")

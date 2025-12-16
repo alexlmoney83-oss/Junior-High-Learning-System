@@ -56,15 +56,11 @@ def get_courses(request):
     
     if page is not None:
         serializer = CourseListSerializer(page, many=True)
-        return paginator.get_paginated_response({
-            'code': 200,
-            'message': 'success',
-            'data': {
-                'count': paginator.page.paginator.count,
-                'next': paginator.get_next_link(),
-                'previous': paginator.get_previous_link(),
-                'results': serializer.data
-            }
+        return APIResponse.success({
+            'count': paginator.page.paginator.count,
+            'next': paginator.get_next_link(),
+            'previous': paginator.get_previous_link(),
+            'results': serializer.data
         })
     
     serializer = CourseListSerializer(queryset, many=True)
